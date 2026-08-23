@@ -1,0 +1,167 @@
+:root {
+  --ink: #0b1120;
+  --ink-soft: #151d33;
+  --paper: #f5f7fa;
+  --coral: #ff4d6d;
+  --mint: #00d9a3;
+  --indigo: #3d5aff;
+  --text-primary: #0b1120;
+  --text-muted: #5b6478;
+  --border-soft: #e2e6ee;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--paper);
+  color: var(--text-primary);
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ---------- Header / signature pulse ---------- */
+
+.header {
+  position: relative;
+  background: var(--ink);
+  overflow: hidden;
+  padding: 3.5rem 1.5rem 3rem;
+}
+
+.pulse-wrap {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  display: flex;
+  align-items: center;
+}
+
+.pulse-line {
+  width: 200%;
+  height: 60px;
+  animation: pulse-scroll 8s linear infinite;
+}
+
+.pulse-path {
+  stroke: var(--mint);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes pulse-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.header-content {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mint);
+  background: rgba(0, 217, 163, 0.12);
+  border: 1px solid rgba(0, 217, 163, 0.35);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.5vw, 2.75rem);
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.6rem;
+}
+
+.header p {
+  color: #aab2c8;
+  font-size: 1.05rem;
+}
+
+/* ---------- Layout ---------- */
+
+.container {
+  flex: 1;
+  max-width: 720px;
+  width: 100%;
+  margin: -2rem auto 0;
+  padding: 0 1.25rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Loading state ---------- */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 2rem 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--indigo);
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) { animation-delay: 0.15s; background: var(--coral); }
+.loading-dot:nth-child(3) { animation-delay: 0.3s; background: var(--mint); }
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+.loading-text {
+  margin-left: 0.4rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-line,
+  .loading-dot {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 2.75rem 1.25rem 2.5rem;
+  }
+
+  .container {
+    margin-top: -1.5rem;
+  }
+}

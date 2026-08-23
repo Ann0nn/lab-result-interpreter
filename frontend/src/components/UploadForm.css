@@ -1,0 +1,78 @@
+.upload-container {
+  margin-bottom: 1.5rem;
+}
+
+.upload-form {
+  border: 2px dashed var(--border-soft);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(11, 17, 32, 0.06);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  cursor: pointer;
+}
+
+.upload-form:hover {
+  border-color: var(--indigo);
+  box-shadow: 0 12px 36px rgba(61, 90, 255, 0.12);
+}
+
+.upload-form.active {
+  border-color: var(--mint);
+  background: #f0fdf9;
+  box-shadow: 0 0 0 4px rgba(0, 217, 163, 0.15);
+  transform: scale(1.01);
+}
+
+.upload-form input {
+  display: none;
+}
+
+.upload-label {
+  cursor: pointer;
+  display: block;
+}
+
+.upload-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 1.1rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--indigo), var(--mint));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.upload-label h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  font-size: 1.2rem;
+}
+
+.upload-label p {
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.upload-label small {
+  font-family: var(--font-mono);
+  color: #9aa2b8;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .upload-form {
+    padding: 2rem 1.25rem;
+  }
+
+  .upload-label h3 {
+    font-size: 1.05rem;
+  }
+}
