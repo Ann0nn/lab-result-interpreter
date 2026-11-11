@@ -8,6 +8,11 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Render (and most hosts) sit behind a proxy — trust the first proxy hop so
+// req.ip is the real visitor's IP, not the proxy's. The rate limiter below
+// keys on req.ip; without this, every visitor would share one bucket.
+app.set('trust proxy', 1);
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Middleware
@@ -30,12 +35,55 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
 });
 
+// --- Rate limiting for /api/interpret -------------------------------------
+// Every interpretation costs a Gemini API call, so the endpoint needs a cap
+// before the link is shared publicly. Simple in-memory limiter (the app runs
+// as a single instance): max 10 interpretations per IP per 15 minutes.
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX = 10;
+const interpretHits = new Map(); // ip -> { count, windowStart }
+
+function interpretRateLimit(req, res, next) {
+  const now = Date.now();
+  const ip = req.ip || 'unknown';
+  let entry = interpretHits.get(ip);
+
+  if (!entry || now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    entry = { count: 0, windowStart: now };
+    interpretHits.set(ip, entry);
+  }
+
+  entry.count += 1;
+
+  if (entry.count > RATE_LIMIT_MAX) {
+    const retryAfterSec = Math.ceil(
+      (entry.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000
+    );
+    res.set('Retry-After', String(retryAfterSec));
+    return res.status(429).json({
+      error: `You've made ${RATE_LIMIT_MAX} requests in a short window. Please wait a few minutes and try again.`,
+    });
+  }
+
+  next();
+}
+
+// Periodically drop expired entries so the map can't grow forever.
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of interpretHits) {
+    if (now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+      interpretHits.delete(ip);
+    }
+  }
+}, RATE_LIMIT_WINDOW_MS).unref();
+
 // Routes
 app.get('/health', (req, res) => {
   res.json({ status: 'Backend is running' });
 });
 
-app.post('/api/interpret', upload.single('file'), async (req, res) => {
+app.post('/api/interpret', interpretRateLimit, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
